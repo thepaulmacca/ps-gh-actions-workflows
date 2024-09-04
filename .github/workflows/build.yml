@@ -7,28 +7,28 @@ on:
       - "src/TodoApi/**"
 
 jobs:
-  build:
+  build-and-push-image:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src/TodoApi
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v4
+      - name: Login to docker hub
+        uses: docker/login-action@v3
         with:
-          dotnet-version: '8.x'
-      - name: Install dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build
-      - name: Test with dotnet
-        run: dotnet test --logger trx --results-directory "TestResults"
-        working-directory: ./tests/TodoApi.Tests
-      - name: Upload dotnet test results
-        uses: actions/upload-artifact@v4
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up docker buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and test
+        uses: docker/build-push-action@v6
         with:
-          name: dotnet-results
-          path: TestResults
-        # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
+          target: build
+          load: true
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          target: final
+          tags: ${{ vars.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest

@@ -17,3 +17,5 @@ jobs:
       - run: dotnet --list-sdks
       - run: dotnet build
         working-directory: ./src/TodoApi
+      - run: dotnet test
+        working-directory: ./tests/TodoApi.Tests

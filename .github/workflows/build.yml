@@ -5,7 +5,6 @@ on:
     paths:
       - ".github/workflows/build.yml"
       - "src/TodoApi/**"
-  workflow_dispatch: # manual
 
 jobs:
   build:
@@ -15,8 +14,21 @@ jobs:
         working-directory: ./src/TodoApi
     steps:
       - uses: actions/checkout@v4
-      - run: dotnet --list-runtimes
-      - run: dotnet --list-sdks
-      - run: dotnet build
-      - run: dotnet test
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build
+      - name: Test with dotnet
+        run: dotnet test --logger trx --results-directory "TestResults"
         working-directory: ./tests/TodoApi.Tests
+      - name: Upload dotnet test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-results
+          path: TestResults
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}

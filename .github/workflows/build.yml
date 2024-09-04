@@ -9,13 +9,14 @@ on:
 
 jobs:
   build:
-    name: build-dotnet-api
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/TodoApi
     steps:
       - uses: actions/checkout@v4
       - run: dotnet --list-runtimes
       - run: dotnet --list-sdks
       - run: dotnet build
-        working-directory: ./src/TodoApi
       - run: dotnet test
         working-directory: ./tests/TodoApi.Tests

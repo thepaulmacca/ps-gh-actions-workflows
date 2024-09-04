@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - ".github/workflows/build.yml"
-      - "src/**"
+      - "src/TodoApi/**"
   workflow_dispatch: # manual
 
 jobs:
@@ -16,4 +16,4 @@ jobs:
       - run: dotnet --list-runtimes
       - run: dotnet --list-sdks
       - run: dotnet build
-        working-directory: ./src
+        working-directory: ./src/TodoApi
